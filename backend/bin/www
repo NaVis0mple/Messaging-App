@@ -7,6 +7,7 @@
 const app = require('../app')
 const debug = require('debug')('backend:server')
 const http = require('http')
+const { Server } = require('socket.io')
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +21,56 @@ app.set('port', port)
  */
 
 const server = http.createServer(app)
+
+// socket io
+
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:5173',
+    credentials: true
+  }
+})
+const activeConnections = []
+io.on('connection', (socket) => {
+  console.log(socket.id)
+
+  socket.on('connectMessage', (data) => {
+    // data
+    //  { connectEmail: 'test@gmail.com',
+    //   socketId: 'BIDKY1PyV9XenF_uAAAI',
+    //   targetEmail: 'test2@gmail.com' }
+    console.log(data)
+    activeConnections.push(data) // add active when user connect
+    console.log(activeConnections.length)
+  })
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected')
+    const index = activeConnections.findIndex((connection) => connection.socketId === socket.id)
+    if (index !== -1) {
+      activeConnections.splice(index, 1)
+    }
+  })
+
+  socket.on('refetchReminderTarget', (data) => {
+    // data
+    //  { connectEmail: 'test@gmail.com',
+    //   socketId: 'BIDKY1PyV9XenF_uAAAI',
+    //   targetEmail: 'test2@gmail.com' }
+    console.log(activeConnections)
+
+    console.log(activeConnections.length)
+    console.log(data)
+
+    const isTargetEmailConnected = activeConnections.some((connection) => connection.connectEmail === data.targetEmail)
+
+    if (isTargetEmailConnected) {
+      const targetSocket = activeConnections.find((connection) => connection.connectEmail === data.targetEmail)
+      io.to(targetSocket.socketId).emit('newMessageNeedRefetchReminder', true)
+      io.to(data.socketId).emit('newMessageNeedRefetchReminder', true)
+    }
+  })
+})
 
 /**
  * Listen on provided port, on all network interfaces.

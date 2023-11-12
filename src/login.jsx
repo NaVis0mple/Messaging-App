@@ -1,5 +1,8 @@
 import Cookies from 'js-cookie'
+import { useNavigate } from 'react-router-dom'
 function Login () {
+  const navigate = useNavigate()
+
   async function loginPost (e) {
     e.preventDefault()
 
@@ -14,9 +17,12 @@ function Login () {
       const data = await fetchLoginPost.json()
       if (data.status) {
         console.log(data.message)
+        console.log(data.email)
         Cookies.set('token', data.token)
+        navigate('/app')
       } else {
         console.log(data.message)
+        navigate('/login')
       }
     } catch (error) {
       console.error(error)

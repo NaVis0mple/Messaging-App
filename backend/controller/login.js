@@ -26,13 +26,14 @@ exports.login_post = [
         const compareBcryptPassword = await bcrypt.compare(password, DbUserLookUp.password)
         if (compareBcryptPassword) {
           const opts = {} // token generate
-          opts.expiresIn = '10000'
+          opts.expiresIn = '1d'
           const secret = process.env.jwtSecret
           const token = jwt.sign({ email }, secret, opts)
           return res.status(200).json({
-            message: 'Auth Passed', // need to store at frontend
+            email,
+            message: 'Auth Passed',
             status: true,
-            token
+            token // need to store at frontend
           })
         }
       }

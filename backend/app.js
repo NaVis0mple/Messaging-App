@@ -40,7 +40,7 @@ const opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
 opts.secretOrKey = process.env.jwtSecret
 const jwtStrategy = new JwtStrategy(opts, async (jwt_payload, done) => {
-  console.log(jwt_payload)
+  console.log('from app.js new jwtstrategy', jwt_payload)
   const dbuser = await User.findOne({ email: jwt_payload.email }).exec()
   if (dbuser) {
     return done(null, true)

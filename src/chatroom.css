@@ -1,0 +1,7 @@
+.chatDisplay {
+    height: 95vh;
+    display: grid;
+    grid-template-rows: 5vh 85vh 5vh;
+}
+
+/* .chatroomInput {} */
